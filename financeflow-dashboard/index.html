@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceFlow Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="dashboard">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="logo">💸</span>
+          <div>
+            <h1>FinanceFlow</h1>
+            <p>Dashboard Financeiro</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span id="data-atual"></span>
+        </div>
+      </header>
+
+      <div class="kpi-row">
+        <div class="kpi-card kpi-saldo">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Saldo Total</span>
+            <span class="kpi-value" id="kpi-total">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-entrada">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Entradas</span>
+            <span class="kpi-value" id="kpi-entradas">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-saida">
+          <div class="kpi-icon">📉</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Saídas</span>
+            <span class="kpi-value" id="kpi-saidas">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-transacoes">
+          <div class="kpi-icon">🔢</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Transações</span>
+            <span class="kpi-value" id="kpi-count">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+
+        <div class="panel panel-form">
+          <h2 class="panel-title">Nova Transação</h2>
+          <div class="form-group">
+            <label>Descrição</label>
+            <input id="desc" placeholder="Ex: Salário, Aluguel..." />
+          </div>
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input id="valor" type="number" min="0" step="0.01" placeholder="0,00" />
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="categoria">
+              <option value="Alimentação">🍔 Alimentação</option>
+              <option value="Transporte">🚗 Transporte</option>
+              <option value="Moradia">🏠 Moradia</option>
+              <option value="Saúde">💊 Saúde</option>
+              <option value="Lazer">🎮 Lazer</option>
+              <option value="Educação">📚 Educação</option>
+              <option value="Salário">💼 Salário</option>
+              <option value="Outros">📦 Outros</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button class="btn-entrada" onclick="addEntrada()">+ Entrada</button>
+            <button class="btn-saida" onclick="addSaida()">− Saída</button>
+          </div>
+        </div>
+
+        <div class="panel panel-bar">
+          <h2 class="panel-title">Entradas vs Saídas <span class="panel-sub">por categoria</span></h2>
+          <div class="chart-wrap">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel panel-donut">
+          <h2 class="panel-title">Distribuição <span class="panel-sub">saídas por categoria</span></h2>
+          <div class="chart-wrap chart-wrap-donut">
+            <canvas id="donutChart"></canvas>
+          </div>
+          <div id="donut-legend" class="donut-legend"></div>
+        </div>
+
+        <div class="panel panel-line">
+          <h2 class="panel-title">Evolução do Saldo <span class="panel-sub">ao longo das transações</span></h2>
+          <div class="chart-wrap">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel panel-lista">
+          <h2 class="panel-title">Histórico de Transações</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody id="lista"></tbody>
+            </table>
+            <div id="lista-vazia" class="lista-vazia">Nenhuma transação ainda. Adicione acima! 📊</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

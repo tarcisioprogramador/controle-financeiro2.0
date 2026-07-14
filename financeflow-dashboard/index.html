@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="description" content="FinanceFlow - Controle financeiro completo e inteligente" />
+  <title>FinanceFlow - Controle Financeiro</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="logo-wrap">
+          <span class="logo-icon">💰</span>
+          <div>
+            <h1 class="logo-text">FinanceFlow</h1>
+            <p class="logo-sub">Controle Inteligente</p>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="dataAtual"></span>
+        <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SIDEBAR (mobile) -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <div class="sidebar-content" id="sidebarContent">
+        <div class="sidebar-header">
+          <span class="logo-icon">💰</span>
+          <span class="logo-text">FinanceFlow</span>
+          <button class="sidebar-close" id="sidebarClose" aria-label="Fechar menu">&times;</button>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="#" data-tab="dashboard" class="active">📊 Dashboard</a></li>
+          <li><a href="#" data-tab="transactions">📋 Transações</a></li>
+          <li><a href="#" data-tab="goals">🎯 Metas</a></li>
+          <li><a href="#" data-tab="insights">🧠 Insights</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- TAB NAV (desktop) -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tab-btn" data-tab="transactions">📋 Transações</button>
+      <button class="tab-btn" data-tab="goals">🎯 Metas</button>
+      <button class="tab-btn" data-tab="insights">🧠 Insights</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- ═══ TAB: DASHBOARD ═══ -->
+      <section class="tab-panel active" id="tab-dashboard">
+        <!-- KPI CARDS -->
+        <div class="kpi-row">
+          <div class="kpi-card kpi-saldo">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-info">
+              <span class="kpi-label">Saldo Total</span>
+              <span class="kpi-value" id="kpiSaldo">R$ 0,00</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-entrada">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-info">
+              <span class="kpi-label">Receitas</span>
+              <span class="kpi-value" id="kpiEntradas">R$ 0,00</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-saida">
+            <div class="kpi-icon">📉</div>
+            <div class="kpi-info">
+              <span class="kpi-label">Despesas</span>
+              <span class="kpi-value" id="kpiSaidas">R$ 0,00</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-meta">
+            <div class="kpi-icon">🎯</div>
+            <div class="kpi-info">
+              <span class="kpi-label">Economia</span>
+              <span class="kpi-value" id="kpiEconomia">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div class="alerts-container" id="alertsContainer"></div>
+
+        <!-- FORM + CHARTS -->
+        <div class="dashboard-grid">
+          <!-- FORM -->
+          <div class="panel panel-form">
+            <h2 class="panel-title">➕ Nova Transação</h2>
+            <div id="transactionForm" autocomplete="off">
+              <div class="form-group">
+                <label for="txDescricao">Descrição</label>
+                <input id="txDescricao" type="text" placeholder="Ex: Salário, Aluguel..." />
+              </div>
+              <div class="form-group">
+                <label for="txValor">Valor (R$)</label>
+                <input id="txValor" type="number" min="0.01" step="0.01" placeholder="0,00" />
+              </div>
+              <div class="form-group">
+                <label for="txCategoria">Categoria</label>
+                <select id="txCategoria">
+                  <option value="Alimentação">🍔 Alimentação</option>
+                  <option value="Transporte">🚗 Transporte</option>
+                  <option value="Moradia">🏠 Moradia</option>
+                  <option value="Saúde">💊 Saúde</option>
+                  <option value="Lazer">🎮 Lazer</option>
+                  <option value="Educação">📚 Educação</option>
+                  <option value="Salário">💼 Salário</option>
+                  <option value="Freelance">💻 Freelance</option>
+                  <option value="Investimentos">📈 Investimentos</option>
+                  <option value="Outros">📦 Outros</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="txData">Data</label>
+                <input id="txData" type="date" />
+              </div>
+              <div class="form-group">
+                <label for="txNota">Nota (opcional)</label>
+                <input id="txNota" type="text" placeholder="Observação..." />
+              </div>
+              <div class="btn-row">
+                <button type="button" id="btnAddEntrada" class="btn btn-entrada">
+                  <span>↑ Entrada</span>
+                </button>
+                <button type="button" id="btnAddSaida" class="btn btn-saida">
+                  <span>↓ Saída</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAR CHART -->
+          <div class="panel panel-bar">
+            <h2 class="panel-title">📊 Entradas vs Saídas <span class="panel-sub">por categoria</span></h2>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+          </div>
+
+          <!-- DONUT -->
+          <div class="panel panel-donut">
+            <h2 class="panel-title">🍩 Despesas <span class="panel-sub">por categoria</span></h2>
+            <div class="chart-wrap chart-donut"><canvas id="donutChart"></canvas></div>
+            <div id="donutLegend" class="donut-legend"></div>
+          </div>
+
+          <!-- LINE CHART -->
+          <div class="panel panel-line">
+            <h2 class="panel-title">📈 Evolução do Saldo <span class="panel-sub">ao longo do tempo</span></h2>
+            <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+          </div>
+
+          <!-- MONTHLY BAR -->
+          <div class="panel panel-monthly">
+            <h2 class="panel-title">📅 Comparação Mensal <span class="panel-sub">receitas vs despesas</span></h2>
+            <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: TRANSACTIONS ═══ -->
+      <section class="tab-panel" id="tab-transactions">
+        <div class="panel">
+          <h2 class="panel-title">📋 Transações</h2>
+
+          <!-- FILTERS -->
+          <div class="filters-bar">
+            <div class="filter-group">
+              <input type="text" id="filterSearch" class="filter-input" placeholder="🔍 Buscar..." />
+            </div>
+            <div class="filter-group">
+              <select id="filterTipo" class="filter-select">
+                <option value="">Todos os tipos</option>
+                <option value="entrada">↑ Entradas</option>
+                <option value="saida">↓ Saídas</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="filterCategoria" class="filter-select">
+                <option value="">Todas categorias</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <input type="date" id="filterDataInicio" class="filter-input" title="Data início" />
+            </div>
+            <div class="filter-group">
+              <input type="date" id="filterDataFim" class="filter-input" title="Data fim" />
+            </div>
+            <button class="btn btn-small btn-secondary" id="btnLimparFiltros">Limpar</button>
+            <button class="btn btn-small btn-export" id="btnExportar">📥 Excel</button>
+          </div>
+
+          <!-- TABLE -->
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody"></tbody>
+            </table>
+            <div id="txEmpty" class="empty-state">
+              <span class="empty-icon">📭</span>
+              <p>Nenhuma transação encontrada</p>
+            </div>
+          </div>
+
+          <!-- PAGINATION -->
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: GOALS ═══ -->
+      <section class="tab-panel" id="tab-goals">
+        <div class="panel">
+          <h2 class="panel-title">🎯 Metas Financeiras</h2>
+          <div class="goal-form">
+            <input type="text" id="goalName" placeholder="Nome da meta (ex: Reserva de Emergência)" class="filter-input" />
+            <input type="number" id="goalTarget" placeholder="Valor alvo (R$)" min="1" step="0.01" class="filter-input" />
+            <input type="date" id="goalDeadline" class="filter-input" />
+            <button class="btn btn-entrada" id="btnAddGoal">+ Adicionar Meta</button>
+          </div>
+          <div class="goals-list" id="goalsList"></div>
+        </div>
+      </section>
+
+      <!-- ═══ TAB: INSIGHTS ═══ -->
+      <section class="tab-panel" id="tab-insights">
+        <div class="panel">
+          <h2 class="panel-title">🧠 Insights Inteligentes</h2>
+          <div class="insights-list" id="insightsList"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MODAL (edit transaction) -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>✏️ Editar Transação</h3>
+          <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div id="editForm">
+          <input type="hidden" id="editId" />
+          <div class="form-group">
+            <label for="editDesc">Descrição</label>
+            <input id="editDesc" type="text" />
+          </div>
+          <div class="form-group">
+            <label for="editValor">Valor (R$)</label>
+            <input id="editValor" type="number" min="0.01" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label for="editCategoria">Categoria</label>
+            <select id="editCategoria"></select>
+          </div>
+          <div class="form-group">
+            <label for="editTipo">Tipo</label>
+            <select id="editTipo">
+              <option value="entrada">↑ Entrada</option>
+              <option value="saida">↓ Saída</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editData">Data</label>
+            <input id="editData" type="date" />
+          </div>
+          <div class="form-group">
+            <label for="editNota">Nota</label>
+            <input id="editNota" type="text" />
+          </div>
+          <div class="btn-row">
+            <button type="button" id="btnSaveEdit" class="btn btn-entrada">💾 Salvar</button>
+            <button type="button" class="btn btn-saida" id="btnCancelEdit">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
